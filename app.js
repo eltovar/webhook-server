@@ -39,6 +39,7 @@ app.post('/webhook', express.json(), function (req, res){ //ruta del webhook Ini
     }
 
     function webhookPrueba(agent) {
+      console.log("Intent webhookPrueba Intent activado.");
       agent.add('Hola!!, estoy funcionando desde el webhook.');
     }
 
