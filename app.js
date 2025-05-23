@@ -24,6 +24,8 @@ app.get('/', function (req, res){
 
 app.post('/webhook', (req, res) => { //ruta del webhook Inicio
 
+  // Log para ver la petición completa de Dialogflow (útil para depurar en Railway Logs)
+  console.log("Peticion del Webhook en DialogFlow", req.body);
 
   const agent = new WebhookClient({ request: req, response: res });
 
@@ -44,8 +46,6 @@ app.post('/webhook', (req, res) => { //ruta del webhook Inicio
     
     
     agent.handleRequest(intentMap);
-
-  console.log("Peticion del Webhook en DialogFlow", req.body);
   
   /*var speech =
   req.body.queryResult &&
