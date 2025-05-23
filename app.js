@@ -19,12 +19,13 @@ app.get('/', function (req, res){
 });
 
 
-app.post('/webhook', (req, res) => { //ruta del webhook Inicio
+app.post('/webhook', express.json(), function (req, res){ //ruta del webhook Inicio
 
   // Log para ver la petición completa de Dialogflow (útil para depurar en Railway Logs)
-  console.log("Peticion del Webhook en DialogFlow", req.body);
-
   const agent = new WebhookClient({ request: req, response: res });
+  console.log("Peticion del Webhook en DialogFlow", JSON.stringify(req.headers));
+  console.log("Peticion del Webhook en DialogFlow", JSON.stringify(req.body));
+
 
     function welcome(agent) {
       console.log("Intent Default Welcome Intent activado.");
