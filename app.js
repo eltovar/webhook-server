@@ -38,7 +38,7 @@ app.post('/webhook', express.json(), function (req, res){ //ruta del webhook Ini
       agent.add('Hola!!, soy un bot de prueba pero no tengo nada que decirte.');
     }
 
-    function webhookPrueba(agent) {
+    function WebhookPrueba(agent) {
       console.log("Intent webhookPrueba Intent activado.");
       agent.add('Hola!!, estoy funcionando desde el webhook.');
     }
@@ -47,7 +47,7 @@ app.post('/webhook', express.json(), function (req, res){ //ruta del webhook Ini
     let intentMap = new Map();
     intentMap.set('Default Welcome Intent', welcome);// Mapea el Intent de Dialogflow a tu función 'welcome'
     intentMap.set('Default Fallback Intent', fallback); // Mapea el Intent de Dialogflow a tu función 'fallback'
-    intentMap.set('webhookPrueba', webhookPrueba); // Mapea el Intent de Dialogflow a tu función 'webhookPrueba'
+    intentMap.set('WebhookPrueba', WebhookPrueba); // Mapea el Intent de Dialogflow a tu función 'webhookPrueba'
     
     
     agent.handleRequest(intentMap);
