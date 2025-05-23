@@ -27,13 +27,14 @@ app.post('/webhook', (req, res) => { //ruta del webhook Inicio
   const agent = new WebhookClient({ request: req, response: res });
 
     function welcome(agent) {
-        agent.add('Welcome to my agent!');
+      console.log("Intent Default Welcome Intent activado.");
+      agent.add('Hola!!, soy un bot de prueba');
     }
   
     // --- Función para manejar el "Default Welcome Intent" ---
     function fallback(agent) {
-      console.log("Intent Default Welcome Intent activado.");
-      agent.add('Hola!!, soy un bot de prueba');
+      console.log("Intent Default fallback Intent activado.");
+      agent.add('Hola!!, soy un bot de prueba pero no tengo nada que decirte.');
     }
 
     // --- Mapeo de Intents a funciones manejadoras ---
