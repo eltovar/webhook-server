@@ -50,10 +50,10 @@ app.post('/webhook', express.json(), function (req, res){ //ruta del webhook Ini
   output: process.stdout
 });
 */ 
-      const  readline = require('readline').createInterface({
+      /*const  readline = require('readline').createInterface({
         input: agent.parameters.person,
         output: person
-      });
+      });*/
         const person = agent.parameters.person; // Asume que tienes un parámetro 'person' en tu intención
         if (person) {
             agent.add(`¡Hola, ${person}! Es un placer saludarte desde el webhook.`);
