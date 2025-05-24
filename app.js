@@ -55,7 +55,7 @@ app.post('/webhook', express.json(), function (req, res){  //ruta del webhook In
       });*/
     function decirHola(agent) {
       const person = String(agent.parameters.person); // Convierte a cadena explícitamente
-        if (person && person) { // Filtra valores no deseados
+        if (person && person !== 'undefined' && person !== 'null' && person !== '[object Object]') { // Filtra valores no deseados
          agent.add(`¡Hola, ${person}! Es un placer saludarte desde el webhook.`);
         } else {
           agent.add('¡Hola! Es un placer saludarte desde el webhook.');
