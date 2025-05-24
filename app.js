@@ -45,7 +45,7 @@ app.post('/webhook', express.json(), function (req, res){ //ruta del webhook Ini
 
     function decirHola(agent) {
         const person = agent.parameters.person; // Asume que tienes un parámetro 'person' en tu intención
-        if (person == person) {
+        if (person) {
             agent.add(`¡Hola, ${person}! Es un placer saludarte desde el webhook.`);
         } else {
             agent.add('¡Hola! Es un placer saludarte desde el webhook.');
