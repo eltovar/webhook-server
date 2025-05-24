@@ -20,7 +20,7 @@ app.get('/', function (req, res){
 });
 
 
-app.post('/webhook', express.json(), function (req, res){ //ruta del webhook Inicio
+app.post('/webhook', express.json(), function (req, res){  //ruta del webhook Inicio
 
   // Log para ver la petición completa de Dialogflow (útil para depurar en Railway Logs)
   const agent = new WebhookClient({ request: req, response: res });
@@ -56,12 +56,14 @@ app.post('/webhook', express.json(), function (req, res){ //ruta del webhook Ini
       });*/
     function decirHola(agent) {
       const person = String(agent.parameters.person); // Convierte a cadena explícitamente
-        if (person && person ) { // Filtra valores no deseados
+        if (person && person !== 'undefined' && person !== 'null' && person !== '[object Object]') { // Filtra valores no deseados
          agent.add(`¡Hola, ${person}! Es un placer saludarte desde el webhook.`);
         } else {
-          agent.add('¡Hola! Es un placer saludarte desde el webhook.');    
+          agent.add('¡Hola! Es un placer saludarte desde el webhook.');
         }
-      }
+      } 
+    }
+
 
     // --- Mapeo de Intents a funciones manejadoras ---
     let intentMap = new Map();
@@ -100,7 +102,7 @@ app.post('/webhook', express.json(), function (req, res){ //ruta del webhook Ini
   });
 */
 
-  });//fin del webhook
+});//fin del webhook
 
 app.listen(port, () => {
     // Imprime un mensaje en la consola indicando que el servidor está corriendo y la dirección en la que se puede acceder.
