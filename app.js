@@ -28,11 +28,6 @@ app.post('/webhook', express.json(), function (req, res){  //ruta del webhook In
   console.log("Peticion del Webhook en DialogFlow", JSON.stringify(req.body));
 
 
-    function welcome(agent) {
-      console.log("Intent Default Welcome Intent activado.");
-      agent.add('Hola!!, soy un bot de prueba');
-    }
-  
     // --- Función para manejar el "Default fallback Intent" ---
     function fallback(agent) {
       console.log("Intent Default fallback Intent activado.");
