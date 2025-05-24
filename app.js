@@ -2,7 +2,6 @@ const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 const { WebhookClient } = require('dialogflow-fulfillment');
-const { Readline } = require('readline/promises');
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -47,22 +46,22 @@ app.post('/webhook', express.json(), function (req, res){  //ruta del webhook In
     // --- Función para manejar el Intent "decirHola" PRUEBA---
 
     function decirHola(agent) {
-    // El 'agent.parameters.person' es un objeto { "name": "valor" }
-    // Accede a la propiedad 'name' de ese objeto.
+    console.log("agent.parameters recibido:", agent.parameters); // AÑADE ESTO
     const personObject = agent.parameters.person;
 
-    // Inicializa personName como null o cadena vacía
     let personName = null;
 
-    // Verifica si personObject existe y si tiene una propiedad 'name'
     if (personObject && typeof personObject === 'object' && personObject.name) {
         personName = personObject.name;
+    } else if (typeof personObject === 'string' && personObject !== '') { // Add this check if it sometimes comes as a simple string
+        personName = personObject;
+    } else {
+        console.warn("El parámetro 'person' no es un objeto con 'name' ni una cadena simple con valor:", personObject); // AÑADE ESTO
     }
 
     if (personName) {
         agent.add(`¡Hola, ${personName}! Es un placer saludarte desde el webhook.`);
     } else {
-        // Esta rama se ejecutará si no se pudo extraer el nombre (ej. "Hola" sin nombre)
         agent.add('¡Hola! Es un placer saludarte desde el webhook.');
     }
 }
