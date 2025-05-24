@@ -43,20 +43,21 @@ app.post('/webhook', express.json(), function (req, res){ //ruta del webhook Ini
       agent.add('Hola!!, estoy en el webhook de prueba');
     }
 
-    /*function decirHola(agent) {
-        const nombre = agent.parameters.nombre; // Asume que tienes un parámetro 'nombre' en tu intención
-        if (nombre) {
-            agent.add(`¡Hola, ${nombre}! Es un placer saludarte desde el webhook.`);
+    function decirHola(agent) {
+        const person = agent.parameters.person; // Asume que tienes un parámetro 'person' en tu intención
+        if (person == person) {
+            agent.add(`¡Hola, ${person}! Es un placer saludarte desde el webhook.`);
         } else {
             agent.add('¡Hola! Es un placer saludarte desde el webhook.');
         }
-      }*/
+      }
 
     // --- Mapeo de Intents a funciones manejadoras ---
     let intentMap = new Map();
     intentMap.set('Default Welcome Intent', welcome);// Mapea el Intent de Dialogflow a tu función 'welcome'
     intentMap.set('Default Fallback Intent', fallback); // Mapea el Intent de Dialogflow a tu función 'fallback'
     intentMap.set('WebhookPrueba', WebhookPrueba); // Mapea el Intent de Dialogflow a tu función 'webhookPrueba'
+    intentMap.set('decirHola', decirHola); // Mapea el Intent de Dialogflow a tu función 'decirHola'
     
     
     agent.handleRequest(intentMap);
