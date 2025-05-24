@@ -44,7 +44,6 @@ app.post('/webhook', express.json(), function (req, res){  //ruta del webhook In
       agent.add('Hola!!, estoy en el webhook de prueba');
     }
 
-    function decirHola(agent) {
       /*const readline = require('readline').createInterface({
   input: process.stdin,
   output: process.stdout
@@ -56,13 +55,13 @@ app.post('/webhook', express.json(), function (req, res){  //ruta del webhook In
       });*/
     function decirHola(agent) {
       const person = String(agent.parameters.person); // Convierte a cadena explícitamente
-        if (person && person !== 'undefined' && person !== 'null' && person !== '[object Object]') { // Filtra valores no deseados
+        if (person && person) { // Filtra valores no deseados
          agent.add(`¡Hola, ${person}! Es un placer saludarte desde el webhook.`);
         } else {
           agent.add('¡Hola! Es un placer saludarte desde el webhook.');
         }
       } 
-    }
+    
 
 
     // --- Mapeo de Intents a funciones manejadoras ---
