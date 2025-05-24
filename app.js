@@ -2,7 +2,6 @@ const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 const { WebhookClient } = require('dialogflow-fulfillment');
-const { Readline } = require('readline/promises');
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -69,14 +68,14 @@ app.post('/webhook', express.json(), function (req, res){  //ruta del webhook In
 
 
 
-  //FUNION DECIR HOLA
+  //FUNION DECIR HOLA anterior
     
       /*function decirHola(agent) {
       const person = String(agent.parameters.person); // Convierte a cadena explícitamente
         if (person && person !== 'undefined' && person !== 'null' && person !== '[object Object]') { // Filtra valores no deseados
          agent.add(`¡Hola, ${person}! Es un placer saludarte desde el webhook.`);
         } else {
-          agent.add('¡Hola! Es un placer saludarte desde el webhook.');
+          agent.add('¡Hola! E s un placer saludarte desde el webhook.');
         }
       }*/ 
     
