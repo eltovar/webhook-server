@@ -29,7 +29,7 @@ app.post('/webhook', express.json(), function (req, res){  //ruta del webhook In
 
     function welcome(agent) {
       console.log("Intent Default Welcome Intent activado.");
-      agent.add('Hola!!, soy un bot de prueba');
+      agent.add('¡Hola! Es un placer saludarte desde el webhook.');
     }
   
     // --- Función para manejar el "Default fallback Intent" ---
