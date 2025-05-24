@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 const { WebhookClient } = require('dialogflow-fulfillment');
+const { Readline } = require('readline/promises');
 
 const app = express();
 const port = process.env.PORT || 8080;
