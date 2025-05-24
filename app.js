@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 const { WebhookClient } = require('dialogflow-fulfillment');
+const { Readline } = require('readline/promises');
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -44,6 +45,15 @@ app.post('/webhook', express.json(), function (req, res){ //ruta del webhook Ini
     }
 
     function decirHola(agent) {
+      /*const readline = require('readline').createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+*/ 
+      const  readline = require('readline').createInterface({
+        input: agent.parameters.person,
+        output: person
+      });
         const person = agent.parameters.person; // Asume que tienes un parámetro 'person' en tu intención
         if (person) {
             agent.add(`¡Hola, ${person}! Es un placer saludarte desde el webhook.`);
@@ -58,6 +68,7 @@ app.post('/webhook', express.json(), function (req, res){ //ruta del webhook Ini
     intentMap.set('Default Fallback Intent', fallback); // Mapea el Intent de Dialogflow a tu función 'fallback'
     intentMap.set('WebhookPrueba', WebhookPrueba); // Mapea el Intent de Dialogflow a tu función 'webhookPrueba'
     intentMap.set('decirHola', decirHola); // Mapea el Intent de Dialogflow a tu función 'decirHola'
+    
     
     
     agent.handleRequest(intentMap);
