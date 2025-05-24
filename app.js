@@ -44,23 +44,41 @@ app.post('/webhook', express.json(), function (req, res){  //ruta del webhook In
       agent.add('Hola!!, estoy en el webhook de prueba');
     }
 
-      /*const readline = require('readline').createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
-*/ 
-      /*const  readline = require('readline').createInterface({
-        input: agent.parameters.person,
-        output: person
-      });*/
+    // --- Función para manejar el Intent "decirHola" PRUEBA---
+
     function decirHola(agent) {
-      const person = (agent.parameters.person); // Convierte a cadena explícitamente
+    // El 'agent.parameters.person' es un objeto { "name": "valor" }
+    // Accede a la propiedad 'name' de ese objeto.
+    const personObject = agent.parameters.person;
+
+    // Inicializa personName como null o cadena vacía
+    let personName = null;
+
+    // Verifica si personObject existe y si tiene una propiedad 'name'
+    if (personObject && typeof personObject === 'object' && personObject.name) {
+        personName = personObject.name;
+    }
+
+    if (personName) {
+        agent.add(`¡Hola, ${personName}! Es un placer saludarte desde el webhook.`);
+    } else {
+        // Esta rama se ejecutará si no se pudo extraer el nombre (ej. "Hola" sin nombre)
+        agent.add('¡Hola! Es un placer saludarte desde el webhook.');
+    }
+}
+
+
+
+  //FUNION DECIR HOLA
+    
+      /*function decirHola(agent) {
+      const person = String(agent.parameters.person); // Convierte a cadena explícitamente
         if (person && person !== 'undefined' && person !== 'null' && person !== '[object Object]') { // Filtra valores no deseados
          agent.add(`¡Hola, ${person}! Es un placer saludarte desde el webhook.`);
         } else {
           agent.add('¡Hola! Es un placer saludarte desde el webhook.');
         }
-      } 
+      }*/ 
     
 
 
