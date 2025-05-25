@@ -8,6 +8,11 @@ require('dotenv').config(); // Cargar variables de entorno desde el archivo .env
 const app = express();
 const port = process.env.PORT || 8080;
 
+// 5. Obtener la URL de la API de FastAPI desde las variables de entorno
+const FASTAPI_API_URL = process.env.FASTAPI_LANGCHAIN_API_URL;
+console.log(`Webhook configurado para llamar a la API de FastAPI en: ${FASTAPI_API_URL}`);
+
+
 app.use(bodyParser.json());
 
 app.use(
