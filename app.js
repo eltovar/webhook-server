@@ -66,6 +66,63 @@ app.post('/webhook', express.json(), function (req, res){  //ruta del webhook In
     }
 }
 
+  // --- Nueva Función para Llamar a la API de FastAPI (LangChain/RAG/Agente) ---
+  
+   async function handleLangchainAgent(agent) {
+    const userQuery = agent.query; // La pregunta del usuario desde Dialogflow
+    const dialogflowParameters = agent.parameters; // <-- ¡Aquí obtenemos los parámetros!
+
+    console.log(`Intent para Agente LangChain activado. Pregunta del usuario: "${userQuery}"`);
+    console.log("Parámetros de Dialogflow:", JSON.stringify(dialogflowParameters, null, 2)); // Para ver los parámetros en los logs
+
+    if (!FASTAPI_API_URL) {
+        console.error("ERROR: FASTAPI_LANGCHAIN_API_URL no está configurada en .env");
+        agent.add("Lo siento, el servicio de información no está disponible. Por favor, contacta al soporte.");
+        return;
+    }
+
+    try {
+        // Hacer la petición POST a la API de FastAPI
+        const response = await axios.post(FASTAPI_API_URL, {
+            query: userQuery,             // La pregunta original del usuario
+            parameters: dialogflowParameters // <-- ¡Aquí enviamos todos los parámetros!
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const apiResponse = response.data; // La respuesta de la API de FastAPI
+
+        // Suponemos que la API de FastAPI devuelve un JSON con una clave 'answer'
+        if (apiResponse && apiResponse.answer) {
+            agent.add(apiResponse.answer); // Envía la respuesta de la API de FastAPI a Dialogflow
+            console.log("Respuesta de la API de FastAPI enviada a Dialogflow:", apiResponse.answer);
+        } else {
+            agent.add("No pude obtener una respuesta clara del sistema de información. ¿Podrías intentar de otra forma?");
+            console.warn("La API de FastAPI no devolvió la clave 'answer' esperada:", apiResponse);
+        }
+
+    } catch (error) {
+        console.error("Error al llamar a la API de FastAPI:", error.message);
+        if (error.response) {
+            console.error("Respuesta de error de FastAPI:", error.response.data);
+            if (error.response.status === 404) {
+                agent.add("Lo siento, no pude conectar con el servicio de información (error 404). Asegúrate de que la URL sea correcta y el servicio esté en línea.");
+            } else if (error.response.status === 500) {
+                agent.add("Hubo un error interno en el servicio de información. Por favor, intenta de nuevo o contacta al soporte.");
+            } else {
+                agent.add(`Hubo un problema (${error.response.status}) al procesar tu solicitud con el sistema de información. Intenta de nuevo.`);
+            }
+        } else {
+            agent.add("Lo siento, no pude contactar el sistema de información. Verifica tu conexión o intenta más tarde.");
+        }
+    }
+}
+
+
+
+
 
 
   //FUNION DECIR HOLA anterior
@@ -87,7 +144,8 @@ app.post('/webhook', express.json(), function (req, res){  //ruta del webhook In
     intentMap.set('Default Fallback Intent', fallback); // Mapea el Intent de Dialogflow a tu función 'fallback'
     intentMap.set('WebhookPrueba', WebhookPrueba); // Mapea el Intent de Dialogflow a tu función 'webhookPrueba'
     intentMap.set('decirHola', decirHola); // Mapea el Intent de Dialogflow a tu función 'decirHola'
-    
+    intentMap.set('InformacionGlamping', handleLangchainAgent); // Mapea el Intent de Dialogflow a tu función 'handleLangchainAgent'
+
     
     
     agent.handleRequest(intentMap);

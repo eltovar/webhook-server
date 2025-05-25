@@ -11,8 +11,10 @@
   "description": "",
   "dependencies": {
     "actions-on-google": "^2.14.0",
+    "axios": "^1.9.0",
     "body-parser": "^2.2.0",
     "dialogflow-fulfillment": "^0.5.0",
+    "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "path": "^0.12.7"
   },
