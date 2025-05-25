@@ -2,6 +2,8 @@ const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 const { WebhookClient } = require('dialogflow-fulfillment');
+const axios = require('axios');
+require('dotenv').config(); // Cargar variables de entorno desde el archivo .env
 
 const app = express();
 const port = process.env.PORT || 8080;
