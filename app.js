@@ -84,7 +84,7 @@ app.post('/webhook', express.json(), function (req, res){  //ruta del webhook In
 
     if (!FASTAPI_API_URL) {
         console.error("ERROR: FASTAPI_LANGCHAIN_API_URL no está configurada en .env");
-        agent.add("Lo siento, el servicio de información no está disponible. Por favor, contacta al soporte.");
+        agent.add("Lo siento, aun no tenemos información disponible.");
         return;
     }
 
