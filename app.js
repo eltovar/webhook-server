@@ -75,7 +75,7 @@ app.post('/webhook', express.json(), function (req, res){  //ruta del webhook In
 
   // --- Nueva Función para Llamar a la API de FastAPI (LangChain/RAG/Agente) ---
   
-   async function handleLangchainAgent(agent) {
+   async function langchainAgent(agent) {
     const userQuery = agent.query; // La pregunta del usuario desde Dialogflow
     const dialogflowParameters = agent.parameters; // <-- ¡Aquí obtenemos los parámetros!
 
