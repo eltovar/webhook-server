@@ -151,7 +151,7 @@ app.post('/webhook', express.json(), function (req, res){  //ruta del webhook In
     intentMap.set('Default Fallback Intent', fallback); // Mapea el Intent de Dialogflow a tu función 'fallback'
     intentMap.set('WebhookPrueba', WebhookPrueba); // Mapea el Intent de Dialogflow a tu función 'webhookPrueba'
     intentMap.set('decirHola', decirHola); // Mapea el Intent de Dialogflow a tu función 'decirHola'
-    intentMap.set('InformacionGlamping', handleLangchainAgent); // Mapea el Intent de Dialogflow a tu función 'handleLangchainAgent'
+    intentMap.set('langchainAgent', langchainAgent); // Mapea el Intent de Dialogflow a tu función 'handleLangchainAgent'
 
     
     
