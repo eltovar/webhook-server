@@ -26,108 +26,146 @@ app.get('/', function (req, res){
 });
 
 
-app.post('/webhook', express.json(), function (req, res){  //ruta del webhook Inicio
+// --- Definición de la Ruta Principal del Webhook ---
+// Esta es la ruta a la que Dialogflow enviará las peticiones HTTP POST.
+// `express.json()` se usa como middleware específico para esta ruta también.
+app.post('/webhook', express.json(), function (req, res){
+    // `WebhookClient` es una clase de la librería `dialogflow-fulfillment`
+    // que simplifica la interacción con las peticiones y respuestas de Dialogflow.
+    // `req` es el objeto de la petición HTTP entrante de Express.
+    // `res` es el objeto de la respuesta HTTP saliente de Express.
+    const agent = new WebhookClient({ request: req, response: res }); 
 
-  // Log para ver la petición completa de Dialogflow (útil para depurar en Railway Logs)
-  const agent = new WebhookClient({ request: req, response: res });
-  console.log("Peticion del Webhook en DialogFlow", JSON.stringify(req.headers));
-  console.log("Peticion del Webhook en DialogFlow", JSON.stringify(req.body));
+    // --- Logs para Depuración ---
+    // Imprime los encabezados de la petición de Dialogflow en la consola/logs del servidor.
+    // Útil para verificar metadatos de la petición.
+    console.log("Peticion del Webhook en DialogFlow (headers):", JSON.stringify(req.headers));
+    // Imprime el cuerpo completo de la petición de Dialogflow en la consola/logs.
+    // Aquí puedes ver los Intents, parámetros, contexto, etc., que Dialogflow envía.
+    console.log("Peticion del Webhook en DialogFlow (body):", JSON.stringify(req.body));
 
+    // --- Funciones de Manejo de Intents ---
+    // Cada una de estas funciones maneja un Intent específico de Dialogflow.
+    // El nombre de la función debe coincidir con el nombre del Intent en Dialogflow
+    // que se mapeará en `intentMap`.
 
+    // Función para el Intent "Default Welcome Intent"
     function welcome(agent) {
-      console.log("Intent Default Welcome Intent activado.");
-      agent.add('¡Hola! Es un placer saludarte desde el webhook.');
-    }
-  
-    // --- Función para manejar el "Default fallback Intent" ---
-    function fallback(agent) {
-      console.log("Intent Default fallback Intent activado.");
-      agent.add('Hola!!, soy un bot de prueba pero no tengo nada que decirte.');
-    }
-
-    function WebhookPrueba(agent) {
-      console.log("Intent webhookPrueba Intent activado.");
-      agent.add('Hola!!, estoy en el webhook de prueba');
-    }
-
-    // --- Función para manejar el Intent "decirHola" PRUEBA---
-
-    function decirHola(agent) {
-    console.log("agent.parameters recibido:", agent.parameters); // AÑADE ESTO
-    const personObject = agent.parameters.person;
-
-    let personName = null;
-
-    if (personObject && typeof personObject === 'object' && personObject.name) {
-        personName = personObject.name;
-    } else if (typeof personObject === 'string' && personObject !== '') { // Add this check if it sometimes comes as a simple string
-        personName = personObject;
-    } else {
-        console.warn("El parámetro 'person' no es un objeto con 'name' ni una cadena simple con valor:", personObject); // AÑADE ESTO
-    }
-
-    if (personName) {
-        agent.add(`¡Hola, ${personName}! Es un placer saludarte desde el webhook.`);
-    } else {
+        console.log("Intent Default Welcome Intent activado.");
+        // `agent.add()` se usa para añadir una respuesta que Dialogflow enviará al usuario.
         agent.add('¡Hola! Es un placer saludarte desde el webhook.');
     }
-}
 
-  // --- Nueva Función para Llamar a la API de FastAPI (LangChain/RAG/Agente) ---
-  
-   async function langchainAgent(agent) {
-    const userQuery = agent.query; // La pregunta del usuario desde Dialogflow
-    const dialogflowParameters = agent.parameters; // <-- ¡Aquí obtenemos los parámetros!
-
-    console.log(`Intent para Agente LangChain activado. Pregunta del usuario: "${userQuery}"`);
-    console.log("Parámetros de Dialogflow:", JSON.stringify(dialogflowParameters, null, 2)); // Para ver los parámetros en los logs
-
-    if (!FASTAPI_API_URL) {
-        console.error("ERROR: FASTAPI_LANGCHAIN_API_URL no está configurada en .env");
-        agent.add("Lo siento, aun no tenemos información disponible.");
-        return;
+    // Función para el "Default fallback Intent" (cuando Dialogflow no reconoce un Intent)
+    function fallback(agent) {
+        console.log("Intent Default fallback Intent activado.");
+        agent.add('Hola!!, soy un bot de prueba pero no tengo nada que decirte.');
     }
 
-    try {
-        // Hacer la petición POST a la API de FastAPI
-        const response = await axios.post(FASTAPI_API_URL, {
-            query: userQuery,             // La pregunta original del usuario
-            parameters: dialogflowParameters // <-- ¡Aquí enviamos todos los parámetros!
-        }, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
+    // Función para el Intent "WebhookPrueba" (un Intent de prueba personalizado)
+    function WebhookPrueba(agent) {
+        console.log("Intent webhookPrueba Intent activado.");
+        agent.add('Hola!!, estoy en el webhook de prueba');
+    }
 
-        const apiResponse = response.data; // La respuesta de la API de FastAPI
+    // --- Función para manejar el Intent "decirHola" (con extracción de parámetro "person") ---
+    function decirHola(agent) {
+        // `agent.parameters` contiene los parámetros extraídos por Dialogflow para este Intent.
+        console.log("agent.parameters recibido:", agent.parameters); 
+        const personObject = agent.parameters.person; // Intenta obtener el parámetro 'person'
 
-        // Suponemos que la API de FastAPI devuelve un JSON con una clave 'answer'
-        if (apiResponse && apiResponse.answer) {
-            agent.add(apiResponse.answer); // Envía la respuesta de la API de FastAPI a Dialogflow
-            console.log("Respuesta de la API de FastAPI enviada a Dialogflow:", apiResponse.answer);
+        let personName = null; // Variable para almacenar el nombre de la persona
+
+        // Lógica para manejar diferentes formatos en que Dialogflow puede enviar el parámetro 'person':
+        // 1. Si es un objeto y tiene una propiedad 'name' (como a veces pasa con entidades @sys.person).
+        if (personObject && typeof personObject === 'object' && personObject.name) {
+            personName = personObject.name;
+        // 2. Si es una cadena simple y no está vacía (como a veces pasa con entidades o texto libre).
+        } else if (typeof personObject === 'string' && personObject !== '') {
+            personName = personObject;
         } else {
-            agent.add("No pude obtener una respuesta clara del sistema de información. ¿Podrías intentar de otra forma?");
-            console.warn("La API de FastAPI no devolvió la clave 'answer' esperada:", apiResponse);
+            // Si el parámetro no tiene el formato esperado, registra una advertencia.
+            console.warn("El parámetro 'person' no es un objeto con 'name' ni una cadena simple con valor:", personObject);
         }
 
-    } catch (error) {
-        console.error("Error al llamar a la API de FastAPI:", error.message);
-        if (error.response) {
-            console.error("Respuesta de error de FastAPI:", error.response.data);
-            if (error.response.status === 404) {
-                agent.add("Lo siento, no pude conectar con el servicio de información (error 404). Asegúrate de que la URL sea correcta y el servicio esté en línea.");
-            } else if (error.response.status === 500) {
-                agent.add("Hubo un error interno en el servicio de información. Por favor, intenta de nuevo o contacta al soporte.");
+        // Si se pudo extraer un nombre, personaliza el saludo.
+        if (personName) {
+            agent.add(`¡Hola, ${personName}! Es un placer saludarte desde el webhook.`);
+        } else {
+            // Si no se encontró un nombre, usa un saludo genérico.
+            agent.add('¡Hola! Es un placer saludarte desde el webhook.');
+        }
+    }
+
+    // --- Función ASÍNCRONA para Llamar a la API del Agente Python (Flask) ---
+    // Esta es la función clave para integrar el cerebro de IA de tu proyecto.
+    async function langchainAgent(agent) {
+        // Obtiene la consulta de texto original del usuario desde Dialogflow.
+        const userQuery = agent.query; 
+        // Obtiene todos los parámetros extraídos por Dialogflow para este Intent.
+        const dialogflowParameters = agent.parameters;
+
+        console.log(`Intent para Agente LangChain activado. Pregunta del usuario: "${userQuery}"`);
+        // Imprime los parámetros en formato JSON para facilitar la lectura en los logs.
+        console.log("Parámetros de Dialogflow:", JSON.stringify(dialogflowParameters, null, 2));
+
+        // Validación: Asegura que la URL del agente Python esté configurada en .env.
+        if (!FASTAPI_API_URL) {
+            console.error("ERROR: FASTAPI_LANGCHAIN_API_URL no está configurada en .env");
+            agent.add("Lo siento, aun no tenemos información disponible."); // Mensaje al usuario si la URL falta.
+            return; // Termina la ejecución de la función.
+        }
+
+        try {
+            // --- Petición POST a la API Python (Flask) usando Axios ---
+            const response = await axios.post(FASTAPI_API_URL, { // URL del agente Python
+                // Cuerpo de la petición JSON que se enviará al agente Python:
+                query: userQuery,             // La pregunta del usuario
+                parameters: dialogflowParameters // Los parámetros de Dialogflow
+            }, {
+                // Encabezados HTTP: Crucial para indicar que el cuerpo de la petición es JSON.
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            // `response.data` contiene el cuerpo de la respuesta JSON que el agente Python envió.
+            // Axios automáticamente parsea la respuesta JSON en un objeto JavaScript.
+            const apiResponse = response.data; 
+
+            // --- Procesamiento de la Respuesta del Agente Python ---
+            // Se espera que el agente Python devuelva un JSON con una clave 'answer'.
+            if (apiResponse && typeof apiResponse.answer === 'string' && apiResponse.answer.length > 0) {
+                // Si la respuesta es válida, se la envía de vuelta a Dialogflow.
+                agent.add(apiResponse.answer); 
+                console.log("Respuesta de la API de FastAPI (ahora Flask) enviada a Dialogflow:", apiResponse.answer);
             } else {
-                agent.add(`Hubo un problema (${error.response.status}) al procesar tu solicitud con el sistema de información. Intenta de nuevo.`);
+                // Si la respuesta no tiene el formato esperado, se envía un mensaje de error genérico.
+                agent.add("No pude obtener una respuesta clara del sistema de información. ¿Podrías intentar de otra forma?");
+                console.warn("La API de FastAPI (ahora Flask) no devolvió la clave 'answer' esperada o está vacía:", apiResponse);
             }
-        } else {
-            agent.add("Lo siento, no pude contactar el sistema de información. Verifica tu conexión o intenta más tarde.");
+
+        } catch (error) {
+            // --- Manejo de Errores de la Petición a la API Python ---
+            console.error("Error al llamar a la API de FastAPI (ahora Flask):", error.message);
+
+            // Determina el tipo de error y proporciona un mensaje más específico al usuario.
+            if (error.response) {
+                // Error recibido con una respuesta HTTP (ej. 400, 404, 500)
+                console.error("Respuesta de error de FastAPI (ahora Flask):", error.response.data);
+                if (error.response.status === 404) {
+                    agent.add("Lo siento, no pude conectar con el servicio de información (error 404). Asegúrate de que la URL sea correcta y el servicio esté en línea.");
+                } else if (error.response.status === 500) {
+                    agent.add("Hubo un error interno en el servicio de información. Por favor, intenta de nuevo o contacta al soporte.");
+                } else {
+                    agent.add(`Hubo un problema (${error.response.status}) al procesar tu solicitud con el sistema de información. Intenta de nuevo.`);
+                }
+            } else {
+                // Error sin respuesta HTTP (ej. el servidor Python no está corriendo, problema de red)
+                agent.add("Lo siento, no pude contactar el sistema de información. Verifica tu conexión o intenta más tarde.");
+            }
         }
     }
-}
-
-
 
 
 
@@ -188,4 +226,6 @@ app.post('/webhook', express.json(), function (req, res){  //ruta del webhook In
 app.listen(port, () => {
     // Imprime un mensaje en la consola indicando que el servidor está corriendo y la dirección en la que se puede acceder.
     console.log(`Servidor corriendo en http://localhost:${port}`);
+    console.log(`URL del agente Python (Flask): ${FASTAPI_API_URL}`);
+    
 });//puerto de escucha
