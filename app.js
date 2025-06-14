@@ -152,7 +152,7 @@ app.post('/webhook', express.json(), function (req, res){
             // Determina el tipo de error y proporciona un mensaje más específico al usuario.
             if (error.response) {
                 // Error recibido con una respuesta HTTP (ej. 400, 404, 500)
-                console.error("Respuesta de error de FastAPI (ahora Flask):", error.response.data);
+                console.error("Respuesta de error de Flask:", error.response.data);
                 if (error.response.status === 404) {
                     agent.add("Lo siento, no pude conectar con el servicio de información (error 404). Asegúrate de que la URL sea correcta y el servicio esté en línea.");
                 } else if (error.response.status === 500) {
@@ -226,6 +226,6 @@ app.post('/webhook', express.json(), function (req, res){
 app.listen(port, () => {
     // Imprime un mensaje en la consola indicando que el servidor está corriendo y la dirección en la que se puede acceder.
     console.log(`Servidor corriendo en http://localhost:${port}`);
-    console.log(`URL del agente Python (Flask): ${FASTAPI_API_URL}`);
+    console.log(`URL del agente Python Flask: ${FASTAPI_API_URL}`);
     
 });//puerto de escucha
