@@ -3,6 +3,8 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const { WebhookClient } = require('dialogflow-fulfillment');
 const axios = require('axios');
+
+const { OpenAI } = require('openai'); // Importar la clase OpenAI de la librería openai
 require('dotenv').config(); // Cargar variables de entorno desde el archivo .env
 
 const app = express();
@@ -12,6 +14,11 @@ const port = process.env.PORT || 8080;
 const FASTAPI_API_URL = process.env.FASTAPI_LANGCHAIN_API_URL;
 console.log(`Webhook configurado para llamar a la API de FastAPI en: ${FASTAPI_API_URL}`);
 
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
+const openai = new OpenAI({
+  apiKey: OPENAI_API_KEY,
+});
 
 app.use(bodyParser.json());
 
@@ -168,6 +175,29 @@ app.post('/webhook', express.json(), function (req, res){
     }
 
 
+    //Prueba con OpenIA para dialogflow
+    async function generateFallbackResponseWithOpenAI(agent, userQuery) {
+    try {
+      const fallbackPrompt = `Responde brevemente a la siguiente pregunta del usuario de manera amigable. La pregunta fue: "${userQuery}"`;
+      const chatCompletion = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "system", content: "Eres un asistente amable y servicial para glampings, que puede ofrecer respuestas simples." },
+          { role: "user", content: fallbackPrompt }
+        ],
+        temperature: 0.5,
+        max_tokens: 100,
+      });
+      const openAIResponse = chatCompletion.choices[0].message.content;
+      agent.add(`Hmm, no tengo esa información específica, pero puedo decirte esto: ${openAIResponse}`);
+      console.log("Respuesta de fallback generada con OpenAI:", openAIResponse);
+    } catch (fallbackOpenAIError) {
+      console.error("Error al generar respuesta de fallback con OpenAI:", fallbackOpenAIError.message);
+      agent.add("Lo siento, tuve un problema para procesar tu solicitud.");
+    }
+  }
+
+
 
 
   //FUNION DECIR HOLA anterior
@@ -190,7 +220,7 @@ app.post('/webhook', express.json(), function (req, res){
     intentMap.set('WebhookPrueba', WebhookPrueba); // Mapea el Intent de Dialogflow a tu función 'webhookPrueba'
     intentMap.set('decirHola', decirHola); // Mapea el Intent de Dialogflow a tu función 'decirHola'
     intentMap.set('langchainAgent', langchainAgent); // Mapea el Intent de Dialogflow a tu función 'handleLangchainAgent'
-
+    intentMap.set('generateFallbackResponseWithOpenAI', generateFallbackResponseWithOpenAI); // Mapea el Intent de Dialogflow a tu función 'generateFallbackResponseWithOpenAI'
     
     
     agent.handleRequest(intentMap);
