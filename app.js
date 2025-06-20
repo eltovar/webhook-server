@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const { WebhookClient } = require('dialogflow-fulfillment');
 const axios = require('axios');
 
-const { OpenAI } = require('openai'); //Importar la clase OpenAI de la librería openai
+//const { OpenAI } = require('openai'); Importar la clase OpenAI de la librería openai
 require('dotenv').config(); // Cargar variables de entorno desde el archivo .env
 
 const app = express();
@@ -14,11 +14,11 @@ const port = process.env.PORT || 8080;
 const FASTAPI_API_URL = process.env.FASTAPI_LANGCHAIN_API_URL;
 console.log(`Webhook configurado para llamar a la API de FastAPI en: ${FASTAPI_API_URL}`);
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+//const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
-const openai = new OpenAI({
+/*const openai = new OpenAI({
   apiKey: OPENAI_API_KEY,
-});
+});*/
 
 app.use(bodyParser.json());
 
@@ -177,7 +177,7 @@ app.post('/webhook', express.json(), function (req, res){
 
     //Prueba con OpenIA para dialogflow
     
-    async function generateFallbackResponseWithOpenAI(agent, userQuery) {
+    /*async function generateFallbackResponseWithOpenAI(agent, userQuery) {
     try {
       const fallbackPrompt = `Responde brevemente a la siguiente pregunta del usuario de manera amigable. La pregunta fue: "${userQuery}"`;
       const chatCompletion = await openai.chat.completions.create({
@@ -196,7 +196,7 @@ app.post('/webhook', express.json(), function (req, res){
       console.error("Error al generar respuesta de fallback con OpenAI:", fallbackOpenAIError.message);
       agent.add("Lo siento, tuve un problema para procesar tu solicitud.");
     }
-  }
+  }*/
 
 
 
